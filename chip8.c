@@ -31,6 +31,7 @@ static u16 chip8_fetch(CHIP8 *ch8)
 }
 
 
+extern u8 get_random_byte(void);
 
 /*
  * 0nnn - SYS addr
@@ -278,5 +279,56 @@ void instr_8xye_shl_vx(CHIP8 *ch8, u8 x)
 {
 	ch8->V[0xF] = (ch8->V[x] >> 7) & 0x01;
 	ch8->V[x] <<= 1;
+}
+
+
+/*
+ * 9xy0 - SNE Vx, Vy
+ * Skip next instruction if Vx != Vy.
+ *
+ * The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
+ */
+void instr_9xy0_sne_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	if (ch8->V[x] != ch8->V[y]) {
+		ch8->pc += 2;
+	}
+}
+
+
+/*
+ * Annn - LD I, addr
+ * Set I = nnn.
+ *
+ * The value of register I is set to nnn.
+ */
+void instr_annn_ld_i_addr(CHIP8 *ch8, u16 nnn)
+{
+	ch8->I = nnn;
+}
+
+
+/*
+ * Bnnn - JP V0, addr
+ * Jump to location nnn + V0.
+ *
+ * The program counter is set to nnn plus the value of V0.
+ */
+void instr_bnnn_jp_v0_addr(CHIP8 *ch8, u16 nnn)
+{
+	ch8->pc = nnn + ch8->V[0x0];
+}
+
+
+/*
+ * Cxkk - RND Vx, byte
+ * Set Vx = random byte AND kk.
+ *
+ * The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk. The results are stored in Vx. See instruction 8xy2 for more information on AND.
+ */
+void cxkk_rnd_vx_byte(CHIP8 *ch8, u8 x, u8 kk)
+{
+	u8 byte = get_random_byte();
+	ch8->V[x] = byte & kk;
 }
 
