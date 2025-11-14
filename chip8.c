@@ -159,3 +159,124 @@ void instr_7xkk_add_vx_byte(CHIP8 *ch8, u8 x, u8 kk)
 	ch8->V[x] += kk;
 }
 
+
+/*
+ * 8xy0 - LD Vx, Vy
+ * Set Vx = Vy.
+ *
+ * Stores the value of register Vy in register Vx.
+ */
+void instr_8xy0_ld_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[x] = ch8->V[y];
+}
+
+
+/*
+ * 8xy1 - OR Vx, Vy
+ * Set Vx = Vx OR Vy.
+ *
+ * Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+ * A bitwise OR compares the corrseponding bits from two values, and if either bit is 1,
+ * then the same bit in the result is also 1. Otherwise, it is 0.
+ */
+void instr_8xy1_or_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[x] |= ch8->V[y];
+}
+
+
+/*
+ * 8xy2 - AND Vx, Vy
+ * Set Vx = Vx AND Vy.
+ *
+ * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+ * A bitwise AND compares the corrseponding bits from two values, and if both bits are 1,
+ * then the same bit in the result is also 1. Otherwise, it is 0.
+ */
+void instr_8xy2_and_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[x] &= ch8->V[y];
+}
+
+
+/*
+ * 8xy3 - XOR Vx, Vy
+ * Set Vx = Vx XOR Vy.
+ *
+ * Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx.
+ * An exclusive OR compares the corrseponding bits from two values, and if the bits are not both the same,
+ * then the corresponding bit in the result is set to 1. Otherwise, it is 0.
+ */
+void instr_8xy3_xor_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[x] ^= ch8->V[y];
+}
+
+
+/*
+ * 8xy4 - ADD Vx, Vy
+ * Set Vx = Vx + Vy, set VF = carry.
+ *
+ * The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0.
+ * Only the lowest 8 bits of the result are kept, and stored in Vx.
+ */
+void instr_8xy4_add_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	u16 sum = ch8->V[x] + ch8->V[y];
+	ch8->V[0xF] = sum  > 255;
+	ch8->V[x] = (u8)sum;
+}
+
+
+/*
+ * 8xy5 - SUB Vx, Vy
+ * Set Vx = Vx - Vy, set VF = NOT borrow.
+ *
+ * If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+ */
+void instr_8xy5_sub_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[0xF] = ch8->V[x] > ch8->V[y];
+	ch8->V[x] -= ch8->V[y];
+}
+
+
+/*
+ * 8xy6 - SHR Vx {, Vy}
+ * Set Vx = Vx SHR 1.
+ *
+ * If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+ */
+void instr_8xy6_shr_vx(CHIP8 *ch8, u8 x)
+{
+	ch8->V[0xF] = ch8->V[x] & 0x01;
+	ch8->V[x] >>= 1;
+}
+
+
+/*
+ * 8xy7 - SUBN Vx, Vy
+ * Set Vx = Vy - Vx, set VF = NOT borrow.
+ *
+ * If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+ */
+void instr_8xy7_subn_vx_vy(CHIP8 *ch8, u8 x, u8 y)
+{
+	ch8->V[0xF] = ch8->V[y] > ch8->V[x];
+	ch8->V[x] = ch8->V[y] - ch8->V[x];
+}
+
+
+/*
+ * 8xyE - SHL Vx {, Vy}
+ * Set Vx = Vx SHL 1.
+ *
+ * If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+ */
+void instr_8xye_shl_vx(CHIP8 *ch8, u8 x)
+{
+	ch8->V[0xF] = (ch8->V[x] >> 7) & 0x01;
+	ch8->V[x] <<= 1;
+}
+
